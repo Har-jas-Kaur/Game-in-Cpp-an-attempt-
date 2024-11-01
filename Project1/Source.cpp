@@ -3,36 +3,59 @@
 
 bool running = true;
 
-//callback function
+// Callback function to process messages sent to the window
 LRESULT window_callback(
-	HWND Param1,
-	UINT Param2,
-	WPARAM Param3,
-	LPARAM Param4
-) {
-	return DefWindowProc(Param1, Param2, Param3, Param4);
+    HWND hwnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam) {
+
+    LRESULT result = 0;
+    switch (uMsg) {
+    case WM_CLOSE: {
+        running = false;
+        DestroyWindow(hwnd);
+    } break;
+
+    case WM_DESTROY: {
+        PostQuitMessage(0);
+    } break;
+
+    default: {
+        result = DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    }
+    return result;
 }
-//winmain is the entry point for graphical window
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,int nShowCmd){ 
 
-	//creating window class
-	WNDCLASS window = {};
-	window.style = CS_HREDRAW | CS_VREDRAW;
-	window.lpszClassName = "Game Window";
-	window.lpfnWndProc = window_callback; //callback to proccess messages sent to the window
+// Entry point for the graphical window
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd) {
 
-	//register class
-	RegisterClass(&window);  //passing the pointer to the window
+    // Creating window class
+    WNDCLASS window = {};
+    window.style = CS_HREDRAW | CS_VREDRAW;
+    window.lpszClassName = "Game Window";
+    window.lpfnWndProc = window_callback; // Callback to process messages sent to the window
 
-	//creating window
-	CreateWindowA(window.lpszClassName, "Game", WS_OVERLAPPED | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInstance, 0);
+    // Register class
+    RegisterClass(&window);
 
-	while (running) {
-		//input
+    // Creating the window with WS_OVERLAPPEDWINDOW style for standard window options
+    HWND wind = CreateWindowA(window.lpszClassName, "Game", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720, 0, 0, hInstance, 0);
 
-		//simulate
+    while (running) {
+        // Input
+        MSG message;
+        while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
+            TranslateMessage(&message);
+            DispatchMessage(&message);
+        }
 
-		//render
-	}
+        // Simulate
 
+        // Render
+    }
+
+    return 0;
 }
